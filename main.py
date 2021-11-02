@@ -1,15 +1,38 @@
-# This is a sample Python script.
+import random
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+class Grid:
+    points = {}
+
+    def __init__(self, size):
+        self.size = size
+        self.points = Grid.points
+
+    def interpolate_all(self, type):
+        pass
+
+    def configure(self):
+        pass
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def generate_seed_array(max_value, size):
+    seed_array = []
+    for i in range(size):
+        seed_array.append(max_value * random.random())
+    return seed_array
 
 
-# Press the green button in the gutter to run the script.
+def generate_interpolation(type, input_list):
+    pass
+
+
+def sample_nth(input_list, n):
+    for i in range(0, len(input_list), n):
+
+
+def main():
+    pass
+
+
 if __name__ == '__main__':
     print_hi('PyCharm')
 
