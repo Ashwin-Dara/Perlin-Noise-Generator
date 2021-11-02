@@ -27,6 +27,7 @@ def generate_interpolation(type, input_list):
 
 def sample_nth(input_list, n):
     for i in range(0, len(input_list), n):
+        pass
 
 
 def main():
