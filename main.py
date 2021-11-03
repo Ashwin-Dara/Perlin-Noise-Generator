@@ -15,7 +15,7 @@ class Grid:
         self.x_values = [int(x) for x in self.points.keys()]
         self.x_values.sort()
         # Correctly map it later tomorrow
-        self.y_values = [int(self.points[ self.x_values[y]] ) for y in range len(self.x_values)]
+        self.y_values = [int(self.points[x]) for x in self.x_values]
         plt.plot(self.x_values, self.y_values)
         plt.xlabel("X values")
         plt.ylabel("Intensity")
