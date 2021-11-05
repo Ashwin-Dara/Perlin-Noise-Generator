@@ -1,6 +1,7 @@
 import random
 import matplotlib.pyplot as plt
 
+
 class Grid:
     def __init__(self):
         self.points = {}
@@ -20,10 +21,6 @@ class Grid:
         plt.xlabel("X values")
         plt.ylabel("Intensity")
         plt.show()
-
-
-
-
 
 
 def generate_seed_array(max_value, size):
@@ -51,6 +48,11 @@ def sample_nth(grid, seed_list, step_size, scale):
         grid.points[curr_index] = grid.points.get(curr_index, 0) + scale * seed_list[curr_index]
         curr_index += step_size
     grid.points[len(seed_list) - 1] = grid.points[0]
+
+
+def generate_perlin_noise(grid, size):
+    seed_array = generate_seed_array(100, size - size % 2)
+    return # Need to fill out this functionn
 
 
 def main():
