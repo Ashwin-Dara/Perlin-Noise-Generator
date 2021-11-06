@@ -51,13 +51,21 @@ class Grid:
             - Linear(y0, y1, t) = y0 + t * (m(y1, y0)) where m signifies the slope between two points
             - Cosine(y0, y1, t) = Linear(y0, y1, -1 * cos(pi * t)/2 + 0.5)
         """
+        assert (max(self.points.keys()) > t >= min(self.points.keys())), \
+            "The value of t must be within the current range of the points in grid."
+
         if t in self.points:
             return self.points.get(t)
+
+        # Can refactor the calculations for x1 and x0 using the built in key parameter in min/max
         x1 = t + min([(x - t) for x in self.points.keys() if x > t])
         x0 = t - min([abs(x - t) for x in self.points.keys() if x < t])
         y0, y1 = self.points[int(x0)], self.points[int(x1)]
-        print("The closest pair of points to t are: ", "(", x0, y0, ")", "and", "(", x1, y1, ")")
+        # print("The closest pair of points to t are: ", "(", x0, y0, ")", "and", "(", x1, y1, ")")
         return y0 + (t - x0) * ((y1 - y0) / (x1 - x0))
+
+    def cosine_interpolation(self, t):
+        return self.linear_interpolation(-1 * (math.cos(math.pi * t)/2) + 0.5)
 
     def configure_perlin_array(self):
         self.x_values = [int(x) for x in self.points.keys()]
@@ -71,6 +79,19 @@ class Grid:
         plt.xlabel("X values")
         plt.ylabel("Intensity")
         plt.show()
+
+    def plot_smooth(self, step):
+        i, x = 0, []
+        while i < max(self.points.keys()):
+            x.append(i)
+            i += step
+        y = [self.cosine_interpolation(x) for x in x]
+        # Currently having redundancy in the plotting configuration. Can move this to a seperate helper function.
+        plt.plot(self.x_values, self.y_values)
+        plt.xlabel("X values")
+        plt.ylabel("Intensity")
+        plt.show()
+
 
     def generate_array(self):
         self.configure_perlin_array()
