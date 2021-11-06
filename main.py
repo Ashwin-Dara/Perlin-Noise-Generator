@@ -53,13 +53,11 @@ class Grid:
         """
         if t in self.points:
             return self.points.get(t)
-        x_1 = t + min([(x - t) for x in self.points.keys() if x > t])
-        x_0 = t - min([abs(x - t) for x in self.points.keys() if x < t])
-        print("The closest pair of points to t are: ", "(", x_1, x_0, ")")
-        return
-        # x_plus = min([(x - t) for x in self.points.keys() if x > t])
-        # x_minus = min([abs(x - t) for x in self.points.keys() if x < t])
-        # print(x_plus, x_minus)
+        x1 = t + min([(x - t) for x in self.points.keys() if x > t])
+        x0 = t - min([abs(x - t) for x in self.points.keys() if x < t])
+        y0, y1 = self.points[int(x0)], self.points[int(x1)]
+        print("The closest pair of points to t are: ", "(", x0, y0, ")", "and", "(", x1, y1, ")")
+        return y0 + (t - x0) * ((y1 - y0) / (x1 - x0))
 
     def configure_perlin_array(self):
         self.x_values = [int(x) for x in self.points.keys()]
