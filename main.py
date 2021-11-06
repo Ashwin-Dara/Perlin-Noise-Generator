@@ -1,11 +1,14 @@
 import random
 import matplotlib.pyplot as plt
 from tkinter import Tk, Canvas, Frame, BOTH
+import math
+
 
 def from_rgb(rgb):
     """translates an rgb tuple of int to a tkinter friendly color code
     """
     return "#%02x%02x%02x" % rgb
+
 
 class Draw1D(Frame):
 
@@ -20,9 +23,9 @@ class Draw1D(Frame):
         if self.perlin_array:
             print(self.perlin_array)
             for z in self.perlin_array:
-                canvas.create_rectangle(i*20, 10, 5, 200, outline="red",
-                                        fill=from_rgb((int(z*255), int(z*255), int(z*255))))
-                print(from_rgb((int(z*255), int(z*255), int(z*255))))
+                canvas.create_rectangle(i * 20, 10, 5, 200, outline="red",
+                                        fill=from_rgb((int(z * 255), int(z * 255), int(z * 255))))
+                print(from_rgb((int(z * 255), int(z * 255), int(z * 255))))
                 i += 1
 
     def initUI(self):
@@ -40,9 +43,23 @@ class Grid:
         self.x_values = 0
         self.y_values = 0
 
-    def interpolate(self, x):
-        ep_positive = 0
-        ep_negative = 0
+    def linear_interpolation(self, t):
+        """
+        Formulas for Linear and Cosine Interpolation: both formulas assume
+        that x1 > x0 for the points {(x0, y0), (x1, y1)}
+
+            - Linear(y0, y1, t) = y0 + t * (m(y1, y0)) where m signifies the slope between two points
+            - Cosine(y0, y1, t) = Linear(y0, y1, -1 * cos(pi * t)/2 + 0.5)
+        """
+        if t in self.points:
+            return self.points.get(t)
+        x_1 = t + min([(x - t) for x in self.points.keys() if x > t])
+        x_0 = t - min([abs(x - t) for x in self.points.keys() if x < t])
+        print("The closest pair of points to t are: ", "(", x_1, x_0, ")")
+        return
+        # x_plus = min([(x - t) for x in self.points.keys() if x > t])
+        # x_minus = min([abs(x - t) for x in self.points.keys() if x < t])
+        # print(x_plus, x_minus)
 
     def configure_perlin_array(self):
         self.x_values = [int(x) for x in self.points.keys()]
@@ -88,14 +105,17 @@ def sample_nth(grid, seed_list, step_size, scale):
         curr_index += step_size
     grid.points[len(seed_list) - 1] = grid.points[0]
 
+
 def draw1d():
     pass
 
+
 def recurse_sample(grid, seed_list, step_size, scale):
-    if step_size == 1:
+    if step_size == 0:
         return
     sample_nth(grid, seed_list, step_size, scale)
-    recurse_sample(grid, seed_list, step_size//2, scale/2)
+    recurse_sample(grid, seed_list, step_size // 2, scale / 2)
+
 
 def generate_perlin_noise(grid, size):
     seed_array = generate_seed_array(1, size - (size % 2))
