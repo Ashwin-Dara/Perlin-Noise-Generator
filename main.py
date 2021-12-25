@@ -2,12 +2,29 @@ import random
 import matplotlib.pyplot as plt
 from tkinter import Tk, Canvas, Frame, BOTH
 import math
+import numpy as np
+from scipy.interpolate import interp1d
 
 
 def from_rgb(rgb):
     """translates an rgb tuple of int to a tkinter friendly color code
     """
     return "#%02x%02x%02x" % rgb
+
+
+#
+# How to use scipy interpolation:
+#	- in order to create the "function" that will perform the interpolation, you would do the following:
+#
+#	>>> f = interp1d(x, y, kind = degree)
+#
+#	- the "degree" argument must be an odd number. In order to best fit the polynomial and choose our
+#	degree, we can represent the argument using the following equation
+#
+#	- len(x) - (1 + len(x)%2)
+#
+#	- Now, the name "f" is a function where we can access the values of "f" using "f(x)" where "x" is a number.
+
 
 
 class Draw1D(Frame):
@@ -18,12 +35,22 @@ class Draw1D(Frame):
         self.initUI()
 
     def draw_array(self, canvas):
-        i = 1
+        # The create rectangle arguments take in x1, y1, x2, y2.
+        # y1 and y2 stay constant (10 and 150).
+        # x1 = s * i which is a member of range(0, len(self.perlin_array)) + padding
+        # x2 = x1 + s
+
+        y1, y2, i = 10, 200, 0
+        padding = 20
+        segment = (400 / len(self.perlin_array)) if (len(self.perlin_array)) else 0
+
         # 255, 255, 255 is white
         if self.perlin_array:
             print(self.perlin_array)
             for z in self.perlin_array:
-                canvas.create_rectangle(i * 20, 10, 5, 200, outline="red",
+                x1 = segment * i + padding
+                x2 = x1 + segment
+                canvas.create_rectangle(x1, y1, x2, y2, outline="",
                                         fill=from_rgb((int(z * 255), int(z * 255), int(z * 255))))
                 print(from_rgb((int(z * 255), int(z * 255), int(z * 255))))
                 i += 1
@@ -65,7 +92,7 @@ class Grid:
         return y0 + (t - x0) * ((y1 - y0) / (x1 - x0))
 
     def cosine_interpolation(self, t):
-        return self.linear_interpolation(-1 * (math.cos(math.pi * t)/2) + 0.5)
+        return self.linear_interpolation(-1 * (math.cos(math.pi * t) / 2) + 0.5)
 
     def configure_perlin_array(self):
         self.x_values = [int(x) for x in self.points.keys()]
@@ -87,11 +114,10 @@ class Grid:
             i += step
         y = [self.cosine_interpolation(x) for x in x]
         # Currently having redundancy in the plotting configuration. Can move this to a seperate helper function.
-        plt.plot(self.x_values, self.y_values)
+        plt.plot(x, y)
         plt.xlabel("X values")
         plt.ylabel("Intensity")
         plt.show()
-
 
     def generate_array(self):
         self.configure_perlin_array()
