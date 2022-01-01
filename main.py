@@ -4,6 +4,7 @@ from tkinter import Tk, Canvas, Frame, BOTH
 import math
 import numpy as np
 from scipy.interpolate import interp1d
+from scipy import interpolate
 
 
 def from_rgb(rgb):
@@ -25,6 +26,11 @@ def from_rgb(rgb):
 #
 #	- Now, the name "f" is a function where we can access the values of "f" using "f(x)" where "x" is a number.
 
+# TO DO
+# - figure out how cosine interpolation works so we are able to get a more smooth gradient
+# extend the perlin noise to 2d
+
+
 
 
 class Draw1D(Frame):
@@ -39,26 +45,42 @@ class Draw1D(Frame):
         # y1 and y2 stay constant (10 and 150).
         # x1 = s * i which is a member of range(0, len(self.perlin_array)) + padding
         # x2 = x1 + s
-
+        array_length = len(self.perlin_array)
         y1, y2, i = 10, 200, 0
         padding = 20
-        segment = (400 / len(self.perlin_array)) if (len(self.perlin_array)) else 0
 
+        x = [i for i in range(array_length)]
+        xn = np.linspace(0, array_length - 1, array_length*2)
+        print("X is: ", x, " AND Y IS: ", self.perlin_array)
+        smoothened_noise = interp1d(x, self.perlin_array, kind=3, fill_value='extrapolate')
+        yn = smoothened_noise(xn)
+
+        self.perlin_array = yn
+
+        segment = (400 / len(self.perlin_array)) if (len(self.perlin_array)) else 0
+        plt.plot(xn, yn)
+        plt.show()
         # 255, 255, 255 is white
-        if self.perlin_array:
+        if True:
             print(self.perlin_array)
             for z in self.perlin_array:
                 x1 = segment * i + padding
                 x2 = x1 + segment
+                color = (int(z * 255), int(z * 255), int(z * 255))
+                print(color)
                 canvas.create_rectangle(x1, y1, x2, y2, outline="",
                                         fill=from_rgb((int(z * 255), int(z * 255), int(z * 255))))
                 print(from_rgb((int(z * 255), int(z * 255), int(z * 255))))
                 i += 1
 
+    def smooth_draw(self):
+
+        x = np.linspace(0, 100)
+
+
     def initUI(self):
         self.master.title("1D Perlin Noise")
         self.pack(fill=BOTH, expand=1)
-
         canvas = Canvas(self)
         self.draw_array(canvas)
         canvas.pack(fill=BOTH, expand=1)
@@ -69,6 +91,7 @@ class Grid:
         self.points = {}
         self.x_values = 0
         self.y_values = 0
+        self.smooth_f = None
 
     def linear_interpolation(self, t):
         """
@@ -96,13 +119,18 @@ class Grid:
 
     def configure_perlin_array(self):
         self.x_values = [int(x) for x in self.points.keys()]
+        print("LINE 122", self.x_values)
         self.x_values.sort()
         self.y_values = [float(self.points[x]) for x in self.x_values]
+        self.smooth_f = interp1d(self.x_values, self.y_values, kind='cubic', fill_value="extrapolate")
+        x_n = np.linspace(0, len(self.x_values))
+        y_n = self.smooth_f(x_n)
+        print("LINE 127", y_n)
 
     def plot(self):
         # Correctly map it later tomorrow
         self.configure_perlin_array()
-        plt.plot(self.x_values, self.y_values)
+        plt.plot(self.x_values, self.y_values, 'o--')
         plt.xlabel("X values")
         plt.ylabel("Intensity")
         plt.show()
@@ -171,6 +199,8 @@ def main():
     root = Tk()
     grid1 = Grid()
     generate_perlin_noise(grid1, 64)
+    grid1.plot()
+
     ex = Draw1D(grid1.generate_array())
     root.geometry("500x500")
     root.mainloop()
