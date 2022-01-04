@@ -13,6 +13,12 @@ def from_rgb(rgb):
     return "#%02x%02x%02x" % rgb
 
 
+def transform_values(arr, max_val):
+    epsilon = 0.000001
+    m = max_val * (1/(max(arr) - min(arr) + epsilon))
+    b = min(arr)
+    return [m*(i - b) for i in arr]
+
 #
 # How to use scipy interpolation:
 #	- in order to create the "function" that will perform the interpolation, you would do the following:
@@ -25,12 +31,6 @@ def from_rgb(rgb):
 #	- len(x) - (1 + len(x)%2)
 #
 #	- Now, the name "f" is a function where we can access the values of "f" using "f(x)" where "x" is a number.
-
-# TO DO
-# - figure out how cosine interpolation works so we are able to get a more smooth gradient
-# extend the perlin noise to 2d
-
-
 
 
 class Draw1D(Frame):
@@ -51,11 +51,12 @@ class Draw1D(Frame):
 
         x = [i for i in range(array_length)]
         xn = np.linspace(0, array_length - 1, array_length*2)
-        print("X is: ", x, " AND Y IS: ", self.perlin_array)
+        # print("X is: ", x, " AND Y IS: ", self.perlin_array)
         smoothened_noise = interp1d(x, self.perlin_array, kind=3, fill_value='extrapolate')
         yn = smoothened_noise(xn)
 
-        self.perlin_array = yn
+        self.perlin_array = transform_values(yn, 1)
+        print("LINE 58: transformed perlin array:", self.perlin_array)
 
         segment = (400 / len(self.perlin_array)) if (len(self.perlin_array)) else 0
         plt.plot(xn, yn)
@@ -74,7 +75,9 @@ class Draw1D(Frame):
                 i += 1
 
     def smooth_draw(self):
-
+        '''
+        Useless Function. Can Delete.
+        '''
         x = np.linspace(0, 100)
 
 
@@ -119,13 +122,13 @@ class Grid:
 
     def configure_perlin_array(self):
         self.x_values = [int(x) for x in self.points.keys()]
-        print("LINE 122", self.x_values)
+        # print("LINE 122", self.x_values)
         self.x_values.sort()
         self.y_values = [float(self.points[x]) for x in self.x_values]
         self.smooth_f = interp1d(self.x_values, self.y_values, kind='cubic', fill_value="extrapolate")
         x_n = np.linspace(0, len(self.x_values))
         y_n = self.smooth_f(x_n)
-        print("LINE 127", y_n)
+        # print("LINE 127", y_n)
 
     def plot(self):
         # Correctly map it later tomorrow
@@ -200,7 +203,6 @@ def main():
     grid1 = Grid()
     generate_perlin_noise(grid1, 64)
     grid1.plot()
-
     ex = Draw1D(grid1.generate_array())
     root.geometry("500x500")
     root.mainloop()
